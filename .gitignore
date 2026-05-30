@@ -18,6 +18,13 @@ yarn-error.log*
 
 # env files
 .env*
+!.env.example
+
+# firebase
+firebase-debug.log
+firestore-debug.log
+*-serviceaccount.json
+.firebase/
 
 # vercel
 .vercel

@@ -1,0 +1,46 @@
+rules_version = '2';
+
+// LexReview Firestore security rules.
+// Principle: a signed-in user can only ever touch their OWN documents.
+// AI results are written ONLY by the server (Admin SDK bypasses these rules),
+// so clients can create + read + delete their records but never forge results.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // User profile — keyed by Firebase Auth uid.
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.uid == uid;
+      allow delete: if false;
+    }
+
+    // Uploaded document metadata.
+    match /documents/{docId} {
+      allow read, delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      // Updates (e.g. page count) come from the server only.
+      allow update: if false;
+    }
+
+    // Analysis records. Client may create the initial "processing" shell;
+    // the server fills in the Gemini result. Clients can never write results.
+    match /analyses/{analysisId} {
+      allow read, delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'processing'
+        && !('result' in request.resource.data);
+      allow update: if false;
+    }
+  }
+}

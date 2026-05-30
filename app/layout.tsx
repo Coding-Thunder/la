@@ -1,41 +1,24 @@
-import type React from "react";
-import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import { ReduxProvider } from "@/components/providers/redux-provider";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
-import { Suspense } from "react";
-import "./globals.css";
+import type { ReactNode } from "react"
+import type { Metadata } from "next"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
+import { AuthProvider } from "@/components/auth-provider"
+import { Toaster } from "@/components/ui/sonner"
+import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "LegalAI Pro",
-  description: "AI-powered legal platform for lawyers and clients",
-  generator: "v0.app",
-};
+  title: "LexReview — Review legal documents faster",
+  description:
+    "Upload a contract, NDA, or notice and get a structured review — parties, obligations, risks, red flags, and missing clauses — in under a minute.",
+}
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        <Suspense fallback={null}>
-          <ReduxProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="light"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-              <Toaster />
-            </ThemeProvider>
-          </ReduxProvider>
-        </Suspense>
+        <AuthProvider>{children}</AuthProvider>
+        <Toaster richColors position="top-center" />
       </body>
     </html>
-  );
+  )
 }

@@ -1,571 +1,127 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  CheckCircle,
-  Users,
-  FileText,
-  Search,
-  Shield,
-  Zap,
-  ArrowRight,
-} from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
-import ApiTestComponent from "@/components/ApiTestComponent";
+"use client"
 
-export default function HomePage() {
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { Scale, FileSearch, ShieldCheck, Clock, Loader2 } from "lucide-react"
+import { useAuth } from "@/components/auth-provider"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+
+export default function LandingPage() {
+  const { user, loading, signInWithGoogle } = useAuth()
+  const router = useRouter()
+  const [signingIn, setSigningIn] = useState(false)
+
+  useEffect(() => {
+    if (!loading && user) router.replace("/dashboard")
+  }, [loading, user, router])
+
+  async function handleSignIn() {
+    setSigningIn(true)
+    try {
+      await signInWithGoogle()
+    } catch {
+      toast.error("Sign-in failed. Please try again.")
+      setSigningIn(false)
+    }
+  }
+
+  if (loading || user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 dark:bg-black/95 dark:supports-[backdrop-filter]:bg-black/60">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Scale className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold">LegalAI Pro</h1>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link
-              href="/about"
-              className="text-black dark:text-white hover:text-foreground transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-black dark:text-white hover:text-foreground transition-colors"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/contact"
-              className="text-black dark:text-white hover:text-foreground transition-colors"
-            >
-              Contact
-            </Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Button variant="outline" asChild>
-              <Link href="/auth/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/register">Get Started</Link>
-            </Button>
-          </div>
+    <main className="min-h-screen">
+      <header className="mx-auto flex h-14 max-w-5xl items-center px-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Scale className="h-4 w-4" />
+          </span>
+          <span className="text-sm font-semibold tracking-tight">LexReview</span>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-card">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="container mx-auto px-4 py-24 relative">
-          <div className="max-w-4xl mx-auto text-center">
-            <Badge variant="secondary" className="mb-6">
-              <Zap className="w-4 h-4 mr-2" />
-              AI-Powered Legal Platform
-            </Badge>
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-balance leading-tight">
-              Transform Your Legal Practice with
-              <span className="text-accent"> AI Intelligence</span>
-            </h2>
-            <p className="text-xl text-black dark:text-white mb-8 max-w-3xl mx-auto text-pretty leading-relaxed">
-              Streamline case management, generate professional legal documents
-              with AI assistance, verify research credibility, and enhance
-              client collaboration—all in one comprehensive platform.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link href="/auth/register">
-                  Get Started
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 bg-transparent"
-                asChild
-              >
-                <Link href="/about">Learn More</Link>
-              </Button>
-            </div>
-            <div className="flex items-center justify-center gap-8 text-sm text-black dark:text-white">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Free to try</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Secure platform</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Professional tools</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* API Integration Test Section */}
-      <section className="container mx-auto px-4 py-12">
-        <ApiTestComponent />
-      </section>
-
-      {/* Features Section */}
-      <section className="container mx-auto px-4 py-24">
-        <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">
-            Features
-          </Badge>
-          <h3 className="text-4xl font-bold mb-6 text-balance">
-            Everything You Need for Modern Legal Practice
-          </h3>
-          <p className="text-xl text-black dark:text-white max-w-2xl mx-auto text-pretty">
-            Comprehensive tools designed specifically for lawyers and their
-            clients to work together efficiently.
+      <section className="mx-auto grid max-w-5xl items-center gap-12 px-4 py-16 md:grid-cols-2 md:py-24">
+        <div>
+          <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
+            Review legal documents in a fraction of the time.
+          </h1>
+          <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-muted-foreground">
+            Upload a contract, NDA, or notice. Get a structured first-pass review —
+            parties, obligations, risks, red flags, and likely-missing clauses —
+            each tied back to the exact wording in your document.
           </p>
-        </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          <Card className="border-2 hover:border-accent/50 transition-colors group">
-            <CardHeader>
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <FileText className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">AI Draft Editor</CardTitle>
-              <CardDescription className="text-base">
-                Generate professional legal documents with intelligent AI
-                assistance and formatting
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Smart document templates
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Real-time collaboration
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Version control
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 hover:border-accent/50 transition-colors group">
-            <CardHeader>
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <Search className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">Research Verification</CardTitle>
-              <CardDescription className="text-base">
-                Upload and verify legal research with advanced credibility
-                scoring algorithms
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Source credibility analysis
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Citation verification
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Research repository
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 hover:border-accent/50 transition-colors group">
-            <CardHeader>
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <Users className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">Case Management</CardTitle>
-              <CardDescription className="text-base">
-                Organize cases efficiently and maintain seamless communication
-                with clients
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Case timeline tracking
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Client portal access
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Document sharing
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 hover:border-accent/50 transition-colors group">
-            <CardHeader>
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <Shield className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">Secure Collaboration</CardTitle>
-              <CardDescription className="text-base">
-                Bank-level security for all client communications and document
-                sharing
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  End-to-end encryption
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  GDPR compliant
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Audit trails
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 hover:border-accent/50 transition-colors group">
-            <CardHeader>
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <Zap className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">Smart Analytics</CardTitle>
-              <CardDescription className="text-base">
-                Gain insights into case performance and client satisfaction
-                metrics
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Performance dashboards
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Time tracking
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Revenue analytics
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 hover:border-accent/50 transition-colors group">
-            <CardHeader>
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                <FileText className="w-6 h-6 text-accent" />
-              </div>
-              <CardTitle className="text-xl">Payment Processing</CardTitle>
-              <CardDescription className="text-base">
-                Streamlined billing and payment collection with automated
-                invoicing
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Automated invoicing
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Multiple payment methods
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Financial reporting
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="bg-card py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">
-              How It Works
-            </Badge>
-            <h3 className="text-4xl font-bold mb-6 text-balance">
-              Get Started in Minutes
-            </h3>
-            <p className="text-xl text-black dark:text-white max-w-2xl mx-auto text-pretty">
-              Simple onboarding process designed to get you up and running
-              quickly.
+          <div className="mt-8">
+            <Button size="lg" onClick={handleSignIn} disabled={signingIn} className="gap-2">
+              {signingIn ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleGlyph />}
+              Continue with Google
+            </Button>
+            <p className="mt-3 text-xs text-muted-foreground">
+              For practicing lawyers. A review aid — not legal advice.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-primary-foreground">
-                  1
-                </span>
-              </div>
-              <h4 className="text-xl font-semibold mb-4">
-                Create Your Account
-              </h4>
-              <p className="text-black dark:text-white">
-                Sign up as a lawyer or client and complete your profile in under
-                2 minutes.
-              </p>
-            </div>
+          <ul className="mt-10 space-y-3 text-sm text-muted-foreground">
+            <li className="flex items-center gap-2.5">
+              <Clock className="h-4 w-4 text-accent" /> A first-pass review in under a minute
+            </li>
+            <li className="flex items-center gap-2.5">
+              <FileSearch className="h-4 w-4 text-accent" /> Every finding grounded in a verbatim quote
+            </li>
+            <li className="flex items-center gap-2.5">
+              <ShieldCheck className="h-4 w-4 text-accent" /> Your documents stay private to your account
+            </li>
+          </ul>
+        </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-accent-foreground">
-                  2
-                </span>
-              </div>
-              <h4 className="text-xl font-semibold mb-4">
-                Set Up Your Workspace
-              </h4>
-              <p className="text-black dark:text-white">
-                Configure your dashboard, import existing cases, and invite team
-                members.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-secondary-foreground">
-                  3
-                </span>
-              </div>
-              <h4 className="text-xl font-semibold mb-4">
-                Start Collaborating
-              </h4>
-              <p className="text-black dark:text-white">
-                Begin creating documents, managing cases, and collaborating with
-                clients.
-              </p>
+        <div className="hidden rounded-2xl border border-border bg-card p-6 shadow-sm md:block">
+          <div className="space-y-3">
+            <div className="h-2.5 w-24 rounded bg-muted" />
+            <div className="h-6 w-48 rounded bg-slate-200" />
+            <div className="mt-4 space-y-2">
+              {["Parties", "Risk Analysis", "Red Flags", "Missing Clauses", "Review Notes"].map(
+                (label) => (
+                  <div
+                    key={label}
+                    className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 text-sm"
+                  >
+                    <span className="font-medium text-foreground/80">{label}</span>
+                    <span className="h-1.5 w-10 rounded bg-muted" />
+                  </div>
+                ),
+              )}
             </div>
           </div>
         </div>
       </section>
-
-      <section className="bg-primary text-primary-foreground py-24">
-        <div className="container mx-auto px-4 text-center">
-          <h3 className="text-4xl font-bold mb-6 text-balance">
-            Modern Legal Practice Management
-          </h3>
-          <p className="text-xl mb-8 max-w-2xl mx-auto text-pretty opacity-90">
-            Discover how AI-powered tools can enhance your legal workflow and
-            client collaboration.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              variant="secondary"
-              className="text-lg px-8 py-6"
-              asChild
-            >
-              <Link href="/auth/register">
-                Get Started
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-8 py-6 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
-              asChild
-            >
-              <Link href="/contact">Learn More</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t bg-card">
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <Scale className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <h4 className="text-xl font-bold">LegalAI Pro</h4>
-              </div>
-              <p className="text-black dark:text-white text-sm">
-                Empowering legal professionals with AI-driven tools for modern
-                practice management.
-              </p>
-            </div>
-
-            <div>
-              <h5 className="font-semibold mb-4">Product</h5>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li>
-                  <Link
-                    href="/features"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/pricing"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/security"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Security
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/integrations"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Integrations
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h5 className="font-semibold mb-4">Company</h5>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li>
-                  <Link
-                    href="/about"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/careers"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Careers
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/blog"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h5 className="font-semibold mb-4">Support</h5>
-              <ul className="space-y-2 text-sm text-black dark:text-white">
-                <li>
-                  <Link
-                    href="/help"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Help Center
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/docs"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Documentation
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/privacy"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Terms of Service
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t mt-12 pt-8 text-center text-sm text-black dark:text-white">
-            <p>&copy; 2024 LegalAI Pro. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+    </main>
+  )
 }
 
-function Scale({ className }: { className?: string }) {
+function GoogleGlyph() {
   return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
+    <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden>
       <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
+        fill="#FFC107"
+        d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 4.1 29.3 2 24 2 12 2 2 12 2 24s10 22 22 22 22-10 22-22c0-1.5-.2-2.6-.4-3.5z"
+      />
+      <path
+        fill="#FF3D00"
+        d="m6.3 14.7 6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 4.1 29.3 2 24 2 16.3 2 9.7 6.3 6.3 14.7z"
+      />
+      <path
+        fill="#4CAF50"
+        d="M24 46c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 37 26.7 38 24 38c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 41.6 16.2 46 24 46z"
+      />
+      <path
+        fill="#1976D2"
+        d="M43.6 20.5H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.2 5.2C41.4 36.3 46 30.8 46 24c0-1.5-.2-2.6-.4-3.5z"
       />
     </svg>
-  );
+  )
 }
